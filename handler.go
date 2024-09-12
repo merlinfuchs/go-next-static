@@ -19,7 +19,7 @@ type Route struct {
 	FilePath     string
 }
 
-func NewHandler(f fs.StatFS) (*Handler, error) {
+func NewHandler(f fs.FS) (*Handler, error) {
 	routes := make([]Route, 0)
 
 	err := fs.WalkDir(f, ".", func(path string, d fs.DirEntry, err error) error {
@@ -77,7 +77,7 @@ func NewHandler(f fs.StatFS) (*Handler, error) {
 }
 
 type Handler struct {
-	f      fs.StatFS
+	f      fs.FS
 	routes []Route
 }
 
@@ -88,7 +88,7 @@ func (h *Handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	_, err := h.f.Stat(path)
+	_, err := h.f.Open(path)
 	if !errors.Is(err, os.ErrNotExist) {
 		http.ServeFileFS(res, req, h.f, path)
 		return
