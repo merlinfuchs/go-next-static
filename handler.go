@@ -2,12 +2,14 @@ package gonextstatic
 
 import (
 	"errors"
+	"io"
 	"io/fs"
 	"net/http"
 	"os"
 	"regexp"
 	"slices"
 	"strings"
+	"time"
 )
 
 var dynamicRouteParamRE = regexp.MustCompile(`\\\[(\w+)\\\]`)
@@ -88,15 +90,25 @@ func (h *Handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	_, err := h.f.Open(path)
+	f, err := h.f.Open(path)
 	if !errors.Is(err, os.ErrNotExist) {
-		http.ServeFileFS(res, req, h.f, path)
+		http.ServeContent(res, req, path, time.Now(), f.(io.ReadSeeker))
 		return
 	}
 
 	for _, r := range h.routes {
 		if r.RoutePattern.MatchString(path) {
-			http.ServeFileFS(res, req, h.f, r.FilePath)
+			f, err := h.f.Open(r.FilePath)
+			if err != nil {
+				if errors.Is(err, os.ErrNotExist) {
+					http.NotFound(res, req)
+					return
+				}
+				http.Error(res, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			http.ServeContent(res, req, r.FilePath, time.Now(), f.(io.ReadSeeker))
 			return
 		}
 	}
