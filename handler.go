@@ -124,5 +124,5 @@ func (h *Handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	http.ServeFileFS(res, req, h.f, "index.html")
+	http.ServeFileFS(res, req, h.f, "404.html")
 }

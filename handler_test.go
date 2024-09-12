@@ -32,7 +32,7 @@ var testCases = []struct {
 	{
 		Path:                "/not/found",
 		ExpectedCode:        200,
-		ExpectedBody:        "index.html",
+		ExpectedBody:        "404.html",
 		ExpectedContentType: "text/html; charset=utf-8",
 	},
 	{
@@ -50,7 +50,7 @@ var testCases = []struct {
 	{
 		Path:                "/abc/notfound",
 		ExpectedCode:        200,
-		ExpectedBody:        "index.html",
+		ExpectedBody:        "404.html",
 		ExpectedContentType: "text/html; charset=utf-8",
 	},
 	{
