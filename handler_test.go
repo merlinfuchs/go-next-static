@@ -65,6 +65,12 @@ var testCases = []struct {
 		ExpectedBody:        "[arg1]/[arg2]/page.html",
 		ExpectedContentType: "text/html; charset=utf-8",
 	},
+	{
+		Path:                "/abc/abc/page.html",
+		ExpectedCode:        301,
+		ExpectedBody:        "<a href=\"/abc/abc/page\">Moved Permanently</a>.",
+		ExpectedContentType: "text/html; charset=utf-8",
+	},
 }
 
 func TestParse(t *testing.T) {

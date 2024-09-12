@@ -2,7 +2,6 @@ package gonextstatic
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"net/http"
 	"os"
@@ -65,11 +64,6 @@ func NewHandler(f fs.FS) (*Handler, error) {
 		return b - a
 	})
 
-	for i := range routes {
-		r := routes[i]
-		fmt.Println(r.RoutePattern, r.FilePath)
-	}
-
 	return &Handler{
 		f:      f,
 		routes: routes,
@@ -82,6 +76,12 @@ type Handler struct {
 }
 
 func (h *Handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	if strings.HasSuffix(req.URL.Path, ".html") {
+		newPath := strings.TrimSuffix(req.URL.Path, ".html")
+		http.Redirect(res, req, newPath, http.StatusMovedPermanently)
+		return
+	}
+
 	path := strings.Trim(req.URL.Path, "/")
 	if path == "" {
 		http.ServeFileFS(res, req, h.f, "index.html")

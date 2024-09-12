@@ -8,11 +8,13 @@ For this it does some basic pattern matching which probably doesn't cover all ed
 I mainly built this so I can bundle a NextJS app together with the Go backend in a single binary.
 
 ```go
+import gonextstatic "github.com/merlinfuchs/go-next-static"
+
 func main() {
     // Use go:embed instead to embed the files in the binary
 	nextFiles := os.DirFS("out")
 
-	handler, err := NewHandler(nextFiles.(fs.StatFS))
+	handler, err := gonextstatic.NewHandler(nextFiles.(fs.StatFS))
 	if err != nil {
 		panic(err)
 	}
