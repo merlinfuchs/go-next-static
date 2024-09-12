@@ -91,8 +91,19 @@ func (h *Handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 
 	f, err := h.f.Open(path)
-	if !errors.Is(err, os.ErrNotExist) {
-		http.ServeContent(res, req, path, time.Now(), f.(io.ReadSeeker))
+	if err == nil {
+		stat, err := f.Stat()
+		if err != nil {
+			http.Error(res, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		if !stat.IsDir() {
+			http.ServeContent(res, req, path, time.Now(), f.(io.ReadSeeker))
+			return
+		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		http.Error(res, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
